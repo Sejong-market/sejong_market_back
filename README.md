@@ -13,11 +13,70 @@
 - 댓글: 상품 상세 하단 댓글 등록/조회(간이 채팅 대체)
 
 ## 3) 백엔드 개발 단계
+
+### DB 설계 (ERD)
+
+- **스키마명**: `SejongMarketDB`
+- **문자셋**: `utf8mb4`
+- **엔진**: InnoDB
+- **Workbench 적용 시**: PK 컬럼은 `NOT NULL`, `created_at`은 `DATETIME` + `DEFAULT CURRENT_TIMESTAMP` 사용
+
+#### 테이블 요약
+
+| 테이블 | PK | 주요 컬럼 | 비고 |
+|--------|-----|-----------|------|
+| `users` | `userid` | `email`, `password`, `nickname`, `created_at` | `email` UNIQUE |
+| `products` | `productid` | `title`, `content`, `price`, `status`, `sellerid`, `image_url`, `created_at`, `updated_at` | `sellerid` → `users.userid` |
+| `comments` | `commentid` | `writerid`, `productid`, `content`, `created_at` | `writerid` → `users.userid`, `productid` → `products.productid` |
+
+#### 관계 (FK)
+
+```
+users (1) ──< products (N)     sellerid
+users (1) ──< comments (N)     writerid
+products (1) ──< comments (N)  productid
+```
+
+#### `users`
+
+| 컬럼 | 타입 | 제약 |
+|------|------|------|
+| `userid` | INT | PK, NOT NULL, AUTO_INCREMENT |
+| `email` | VARCHAR(45) | NOT NULL, UNIQUE |
+| `password` | VARCHAR(255) | NOT NULL |
+| `nickname` | VARCHAR(45) | NOT NULL |
+| `created_at` | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+
+#### `products`
+
+| 컬럼 | 타입 | 제약 |
+|------|------|------|
+| `productid` | INT | PK, NOT NULL, AUTO_INCREMENT |
+| `title` | VARCHAR(100) | NOT NULL |
+| `content` | TEXT | NULL |
+| `price` | INT | NOT NULL |
+| `status` | ENUM | `FOR_SALE`, `RESERVED`, `SOLD_OUT` (기본값 `FOR_SALE`) |
+| `sellerid` | INT | NOT NULL, FK → `users.userid` |
+| `image_url` | VARCHAR(225) | NULL |
+| `created_at` | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+| `updated_at` | DATETIME | NOT NULL, ON UPDATE CURRENT_TIMESTAMP |
+
+#### `comments`
+
+| 컬럼 | 타입 | 제약 |
+|------|------|------|
+| `commentid` | INT | PK, NOT NULL, AUTO_INCREMENT |
+| `writerid` | INT | NOT NULL, FK → `users.userid` |
+| `productid` | INT | NOT NULL, FK → `products.productid` |
+| `content` | TEXT | NOT NULL |
+| `created_at` | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+
 ### Step 1. Entity 설계
-- `User`: id, email, password, nickname
-- `Product`: id, title, content, price, status, sellerId
-- `Comment`: id, productId, writerId, content
-- 공통 기준: JPA 어노테이션, 기본 생성자 보호, enum은 문자열 저장
+- `User` ↔ `users`: `userId`, `email`, `password`, `nickname`, `createdAt`
+- `Product` ↔ `products`: `productId`, `title`, `content`, `price`, `status`, `sellerId`, `imageUrl`, `createdAt`, `updatedAt`
+- `Comment` ↔ `comments`: `commentId`, `writerId`, `productId`, `content`, `createdAt`
+- `ProductStatus`: `FOR_SALE`, `RESERVED`, `SOLD_OUT` (DB ENUM과 동일)
+- 공통 기준: JPA 어노테이션, 기본 생성자 보호, FK는 `@ManyToOne` 관계 매핑
 
 ### Step 2. Repository 구현
 - 각 Entity별 `JpaRepository` 상속
@@ -37,8 +96,10 @@
 - 요청/응답 DTO 분리 및 입력값 검증 적용
 
 ### Step 5. DB 연동 및 설정
-- `application.yml`에 MySQL 연결 정보 설정
-- 로컬 DB 생성 및 테이블 자동 생성 확인
+- MySQL에 `SejongMarketDB` 스키마 생성 (Workbench Forward Engineering SQL 또는 JPA `ddl-auto`)
+- `application.yml` JDBC URL을 `jdbc:mysql://localhost:3306/SejongMarketDB` 로 설정
+- `application-secret.yml`에 DB 비밀번호 설정
+- 테이블·FK·UNIQUE 제약이 ERD와 일치하는지 확인
 - 샘플 데이터 입력 후 API 동작 점검
 
 ### Step 6. 테스트
@@ -137,16 +198,19 @@ src/main/java/com/example/market/
 ```
 
 ## 5) 실행 방법
-1. MySQL 실행 및 DB 생성
-2. `src/main/resources/application.yml` 공개 설정 확인
+1. MySQL 실행 후 `SejongMarketDB` 스키마 생성
+   ```sql
+   CREATE SCHEMA IF NOT EXISTS `SejongMarketDB` DEFAULT CHARACTER SET utf8mb4;
+   ```
+   - Workbench에서 ERD SQL을 실행하거나, 앱 실행 시 JPA가 테이블을 생성하도록 할 수 있음
+2. `src/main/resources/application.yml`에서 DB URL이 `SejongMarketDB`를 가리키는지 확인
 3. `src/main/resources/application-secret.yml`에 DB 비밀번호 설정
 4. 프로젝트 실행
    - Windows: `gradlew.bat bootRun`
 5. API 테스트(Postman 또는 Swagger)
 
 ## 6) 다음 작업 우선순위
-1. Entity 필드/관계 매핑 완성
-2. Repository를 `JpaRepository` 기반으로 전환
-3. Service 비즈니스 로직 구현
-4. Controller 엔드포인트 구현
-5. 테스트 코드 작성
+1. ERD 기준 Entity 필드·FK 관계 매핑 (`imageUrl`, `createdAt`/`updatedAt` 포함)
+2. Service 비즈니스 로직 구현
+3. Controller 엔드포인트 구현
+4. 테스트 코드 작성
