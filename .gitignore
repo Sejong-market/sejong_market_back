@@ -40,3 +40,4 @@ out/
 ### Spring Boot local overrides (DB password, machine-specific) ###
 **/application-local.properties
 **/application-local.yml
+**/application-secret.yml
