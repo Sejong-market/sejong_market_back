@@ -20,9 +20,9 @@ public class UserController {
     public ResponseEntity<Void> signup(@RequestBody UserRequestDto requestDto) {
         try {
             userService.signup(requestDto);
-            
-            return ResponseEntity.ok("회원가입 성공");
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
+    }
 }
