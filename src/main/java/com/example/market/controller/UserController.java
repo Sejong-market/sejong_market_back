@@ -26,3 +26,13 @@ public class UserController {
         }
     }
 }
+
+@PostMapping("/login")
+public ResponseEntity<Void> login(@RequestBody UserRequestDto requestDto) {
+    try {
+        userService.login(requestDto);
+        return ResponseEntity.ok().build();
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().build();
+    }
+}
