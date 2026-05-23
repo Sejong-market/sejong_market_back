@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 /**
  * createdAt 만 필요한 엔티티가 상속하는 베이스 클래스.
- * ERD 기준 users / comments / product_likes 등 생성 이후 수정되지 않는 테이블에 사용.
+ * ERD 기준 users, comments 처럼 updated_at 컬럼이 없는 테이블에 사용.
  */
 @Getter
 @MappedSuperclass
