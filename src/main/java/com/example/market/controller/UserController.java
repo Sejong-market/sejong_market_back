@@ -17,9 +17,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody UserRequestDto requestDto) {
+    public ResponseEntity<Void> signUp(@RequestBody UserRequestDto requestDto) {
         try {
-            userService.signup(requestDto);
+            userService.signUp(requestDto);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

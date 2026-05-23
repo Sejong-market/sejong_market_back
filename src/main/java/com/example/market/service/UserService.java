@@ -4,6 +4,7 @@ import com.example.market.dto.user.UserRequestDto;
 import com.example.market.entity.User;
 import com.example.market.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,18 +15,21 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup(UserRequestDto requestDto) {
+    public void signUp(UserRequestDto requestDto) {
 
         Optional<User> found = userRepository.findByEmail(requestDto.getEmail());
         if (found.isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
+        String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+
         User user = new User(
             requestDto.getEmail(),
-            requestDto.getPassword(),
+            encodedPassword,
             requestDto.getNickname()
         );
 
@@ -38,7 +42,7 @@ public class UserService {
         User user = userRepository.findByEmail(requestDto.getEmail())
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         
-        if(!user.getPassword().equals(requestDto.getPassword())) {
+        if(!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
