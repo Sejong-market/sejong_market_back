@@ -5,25 +5,20 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 /**
- * createdAt + updatedAt 가 필요한 엔티티가 상속하는 베이스 클래스.
- * ERD 기준 products 처럼 변경 추적이 필요한 테이블에 사용.
+ * createdAt 만 필요한 엔티티가 상속하는 베이스 클래스.
+ * ERD 기준 users, comments 처럼 updated_at 컬럼이 없는 테이블에 사용.
  */
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseTimeEntity {
+public abstract class BaseCreatedEntity {
 
 	@CreatedDate
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
-
-	@LastModifiedDate
-	@Column(name = "updated_at", nullable = false)
-	private LocalDateTime updatedAt;
 }
