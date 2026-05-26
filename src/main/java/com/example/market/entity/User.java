@@ -32,13 +32,10 @@ public class User extends BaseCreatedEntity {
 	@Column(nullable = false, length = 45)
 	private String nickname;
 
-	@CreatedDate
-	@Column(name = "created_at", nullable = false, updatable = false)
-	private LocalDateTime createdAt;
-
+	@Builder
 	public User(String email, String password, String nickname) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-    }
+		this.email = email;
+		this.password = password;
+		this.nickname = nickname;
+	}
 }
