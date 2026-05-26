@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductResponseDto {
 
-	private final Long productId;
+	private final Integer productId;
 	private final String title;
 	private final Integer price;
 	private final ProductStatus status;

@@ -26,7 +26,7 @@ public class Product extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "productid")
-	private Long productId;
+	private Integer productId;
 
 	@Column(name = "title", nullable = false, length = 100)
 	private String title;
