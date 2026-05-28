@@ -2,6 +2,7 @@ package com.example.market.repository;
 
 import com.example.market.entity.Product;
 import com.example.market.entity.ProductStatus;
+import com.example.market.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -17,4 +18,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	 */
 	@EntityGraph(attributePaths = "seller")
 	Page<Product> findByStatusIn(Collection<ProductStatus> statuses, Pageable pageable);
+
+	/**
+	 * 특정 판매자가 등록한 상품 목록을 페이지네이션하여 조회한다.
+	 */
+	Page<Product> findBySeller(User seller, Pageable pageable);
 }
