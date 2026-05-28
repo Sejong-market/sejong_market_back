@@ -1,6 +1,8 @@
 package com.example.market.service;
 
 import com.example.market.dto.product.ProductResponseDto;
+import com.example.market.dto.product.ProductStatusRequestDto;
+import com.example.market.entity.Product;
 import com.example.market.entity.ProductStatus;
 import com.example.market.entity.User;
 import com.example.market.repository.ProductRepository;
@@ -45,5 +47,26 @@ public class ProductService {
 		return productRepository
 				.findBySeller(user, pageable)
 				.map(ProductResponseDto::from);
+	}
+
+	/**
+	 * 상품 상태 변경.
+	 * 판매자 본인만 변경 가능하다.
+	 */
+	@Transactional
+	public void updateStatus(Integer productId, ProductStatusRequestDto requestDto, User user) {
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+
+		if (!product.getSeller().getUserId().equals(user.getUserId())) {
+			throw new IllegalArgumentException("상품 상태를 변경할 권한이 없습니다.");
+		}
+
+		ProductStatus newStatus = requestDto.getStatus();
+		switch (newStatus) {
+			case FOR_SALE -> product.markForSale();
+			case RESERVED -> product.markReserved();
+			case SOLD_OUT -> product.markSoldOut();
+		}
 	}
 }
