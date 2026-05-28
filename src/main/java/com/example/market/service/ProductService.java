@@ -1,6 +1,6 @@
 package com.example.market.service;
 
-import com.example.market.dto.product.ProductResponseDto;
+import com.example.market.dto.product.ProductRequestDto;
 import com.example.market.dto.product.ProductStatusRequestDto;
 import com.example.market.entity.Product;
 import com.example.market.entity.ProductStatus;
