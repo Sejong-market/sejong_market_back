@@ -4,11 +4,8 @@ import com.example.market.dto.product.ProductResponseDto;
 import com.example.market.dto.user.UserRequestDto;
 import com.example.market.entity.User;
 import com.example.market.global.security.JwtUtil;
-import com.example.market.repository.UserRepository;
 import com.example.market.service.ProductService;
 import com.example.market.service.UserService;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,7 +24,6 @@ public class UserController {
     private final UserService userService;
     private final ProductService productService;
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
 
     @PostMapping("/signUp")
     public ResponseEntity<Void> signUp(@RequestBody UserRequestDto requestDto) {
@@ -61,26 +58,10 @@ public class UserController {
      */
     @GetMapping("/mypage/products")
     public ResponseEntity<Page<ProductResponseDto>> getMyProducts(
-            HttpServletRequest request,
+            @AuthenticationPrincipal User user,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        try {
-            String token = jwtUtil.getJwtFromHeader(request);
-
-            if (token != null && jwtUtil.validateToken(token)) {
-                Claims info = jwtUtil.getUserInfoFromToken(token);
-                String email = info.getSubject();
-
-                User user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-                Page<ProductResponseDto> response = productService.getMyProducts(user, pageable);
-                return ResponseEntity.ok(response);
-            }
-
-            return ResponseEntity.status(401).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Page<ProductResponseDto> response = productService.getMyProducts(user, pageable);
+        return ResponseEntity.ok(response);
     }
 }
