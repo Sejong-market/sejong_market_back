@@ -1,6 +1,8 @@
 package com.example.market.controller;
 
 import com.example.market.dto.product.ProductResponseDto;
+import com.example.market.dto.product.ProductStatusRequestDto;
+import com.example.market.entity.User;
 import com.example.market.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -8,9 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/products")
@@ -32,5 +33,19 @@ public class ProductController {
 	public ResponseEntity<Page<ProductResponseDto>> list(
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return ResponseEntity.ok(productService.findAll(pageable));
+	}
+
+	/**
+	 * 상품 상태 변경.
+	 * 판매자 본인만 변경 가능하다.
+	 */
+	@PatchMapping("/{productId}/status")
+	public ResponseEntity<Void> updateStatus(
+			@PathVariable Integer productId,
+			@RequestBody ProductStatusRequestDto requestDto,
+			@AuthenticationPrincipal User user) {
+
+		productService.updateStatus(productId, requestDto, user);
+		return ResponseEntity.ok().build();
 	}
 }
