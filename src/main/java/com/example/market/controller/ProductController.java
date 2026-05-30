@@ -28,18 +28,18 @@ public class ProductController {
 	/**
 	 * 상품 등록.
 	 *
-	 * 인증된 사용자만 등록할 수 있으며, 제목/내용/가격을 JSON 파트(`request`)로 전달하고
-	 * 이미지 파일은 선택적으로 `image` 파트로 함께 업로드한다.
+	 * 인증된 사용자만 등록할 수 있다. (Spring Security 가이드: SecurityConfig 에서 authenticated 처리)
+	 * 로그인 유저 정보는 @AuthenticationPrincipal 로 바로 주입받는다. 토큰을 직접 파싱하지 않는다.
 	 *
-	 * 예시: POST /api/products  (Content-Type: multipart/form-data)
+	 * 요청 형식: multipart/form-data
 	 *   - request : application/json   { "title": "...", "content": "...", "price": 10000 }
 	 *   - image   : (선택) 이미지 파일
 	 */
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ProductResponseDto> create(
+			@AuthenticationPrincipal User user,
 			@Valid @RequestPart("request") ProductRequestDto requestDto,
-			@RequestPart(value = "image", required = false) MultipartFile image,
-			@AuthenticationPrincipal User user) {
+			@RequestPart(value = "image", required = false) MultipartFile image) {
 
 		ProductResponseDto response = productService.createProduct(requestDto, image, user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -50,7 +50,7 @@ public class ProductController {
 	 *
 	 * 기본 정렬은 최신 등록순(createdAt 내림차순) 이며,
 	 * SOLD_OUT 상태의 상품은 노출되지 않는다.
-	 * 비로그인 사용자도 접근 가능하다.
+	 * 로그인 없이 누구나 접근 가능한 API 이므로 SecurityConfig 에서 permitAll() 로 명시 등록한다.
 	 *
 	 * 예시: GET /api/products?page=0&size=20
 	 */
