@@ -46,9 +46,12 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                // 로그인 없이 누구나 접근 가능한 API (회원가입/로그인, 상품 단순 조회)
                 .requestMatchers("/api/users/signUp", "/api/users/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                // 로그인이 필요한 API (마이페이지, 상품 등록/상태변경 등 상품 쓰기 작업)
                 .requestMatchers("/api/users/mypage/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/products").authenticated()
+                .requestMatchers("/api/products", "/api/products/**").authenticated()
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
