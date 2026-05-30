@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean; 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -45,8 +46,12 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                // 로그인 없이 누구나 접근 가능한 API (회원가입/로그인, 상품 단순 조회·상세 조회)
                 .requestMatchers("/api/users/signUp", "/api/users/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                // 로그인이 필요한 API (마이페이지, 댓글 작성 등)
                 .requestMatchers("/api/users/mypage/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/comments").authenticated()
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
