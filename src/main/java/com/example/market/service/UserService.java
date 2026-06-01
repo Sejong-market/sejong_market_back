@@ -1,6 +1,7 @@
 package com.example.market.service;
 
 import com.example.market.dto.user.UserRequestDto;
+import com.example.market.dto.user.UserResponseDto;
 import com.example.market.entity.User;
 import com.example.market.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,10 @@ public class UserService {
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto getUserInfo(User user) {
+        return new UserResponseDto(user);
     }
 }
