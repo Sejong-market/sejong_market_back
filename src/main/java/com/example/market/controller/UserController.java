@@ -2,6 +2,7 @@ package com.example.market.controller;
 
 import com.example.market.dto.product.ProductResponseDto;
 import com.example.market.dto.user.UserRequestDto;
+import com.example.market.dto.user.UserResponseDto;
 import com.example.market.entity.User;
 import com.example.market.global.security.JwtUtil;
 import com.example.market.service.ProductService;
@@ -51,6 +52,15 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    /**
+     * 내 정보를 조회합니다.
+     */
+    @GetMapping("/mypage")
+    public ResponseEntity<UserResponseDto> getUserInfo(@AuthenticationPrincipal User user) {
+        UserResponseDto responseDto = userService.getUserInfo(user);
+        return ResponseEntity.ok(responseDto);
     }
 
     /**
