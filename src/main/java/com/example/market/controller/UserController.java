@@ -80,6 +80,19 @@ public class UserController {
     }
 
     /**
+     * 회원 탈퇴를 진행합니다.
+     */
+    @DeleteMapping("/mypage")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User user) {
+        try {
+            userService.deleteUser(user);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
      * 내가 등록한 상품 목록을 조회합니다.
      */
     @GetMapping("/mypage/products")
