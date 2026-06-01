@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.dto.user.UserRequestDto;
 import com.example.market.dto.user.UserResponseDto;
+import com.example.market.dto.user.UserUpdateRequestDto;
 import com.example.market.entity.User;
 import com.example.market.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,20 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDto getUserInfo(User user) {
         return new UserResponseDto(user);
+    }
+
+    @Transactional
+    public void updateUserInfo(User user, UserUpdateRequestDto requestDto) {
+        User savedUser = userRepository.findById(user.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (requestDto.getNickname() != null && !requestDto.getNickname().isBlank()) {
+            savedUser.updateNickname(requestDto.getNickname());
+        }
+
+        if (requestDto.getPassword() != null && !requestDto.getPassword().isBlank()) {
+            String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+            savedUser.updatePassword(encodedPassword);
+        }
     }
 }
