@@ -45,6 +45,14 @@ public class User extends BaseCreatedEntity implements UserDetails {
 		this.nickname = nickname;
 	}
 
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
+	}
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return new ArrayList<>();

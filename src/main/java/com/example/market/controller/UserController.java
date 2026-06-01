@@ -2,6 +2,8 @@ package com.example.market.controller;
 
 import com.example.market.dto.product.ProductResponseDto;
 import com.example.market.dto.user.UserRequestDto;
+import com.example.market.dto.user.UserResponseDto;
+import com.example.market.dto.user.UserUpdateRequestDto;
 import com.example.market.entity.User;
 import com.example.market.global.security.JwtUtil;
 import com.example.market.service.ProductService;
@@ -47,6 +49,43 @@ public class UserController {
 
             response.addHeader(jwtUtil.AUTHORIZATION_HEADER, token);
 
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * 내 정보를 조회합니다.
+     */
+    @GetMapping("/mypage")
+    public ResponseEntity<UserResponseDto> getUserInfo(@AuthenticationPrincipal User user) {
+        UserResponseDto responseDto = userService.getUserInfo(user);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * 내 정보를 수정합니다.
+     */
+    @PatchMapping("/mypage")
+    public ResponseEntity<Void> updateUserInfo(
+            @AuthenticationPrincipal User user,
+            @RequestBody UserUpdateRequestDto requestDto) {
+        try {
+            userService.updateUserInfo(user, requestDto);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * 회원 탈퇴를 진행합니다.
+     */
+    @DeleteMapping("/mypage")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User user) {
+        try {
+            userService.deleteUser(user);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
