@@ -8,12 +8,14 @@ import com.example.market.dto.product.ProductStatusRequestDto;
 import com.example.market.entity.Product;
 import com.example.market.entity.ProductStatus;
 import com.example.market.entity.User;
+import com.example.market.global.util.FileStorageService;
 import com.example.market.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -30,6 +32,34 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 	private final CommentService commentService;
+	private final FileStorageService fileStorageService;
+
+	/**
+	 * 상품을 등록한다.
+	 *
+	 * 이미지가 함께 업로드된 경우 파일 시스템에 저장한 뒤 URL 을 DB 에 보관한다.
+	 * 상태는 엔티티 생성 시 자동으로 FOR_SALE 로 초기화된다.
+	 *
+	 * @param requestDto 제목/내용/가격을 담은 요청 DTO
+	 * @param image      업로드된 이미지(선택)
+	 * @param seller     인증된 판매자 사용자
+	 * @return 저장된 상품을 표현하는 응답 DTO
+	 */
+	@Transactional
+	public ProductResponseDto createProduct(ProductRequestDto requestDto, MultipartFile image, User seller) {
+		String imageUrl = fileStorageService.storeProductImage(image);
+
+		Product product = Product.builder()
+				.title(requestDto.getTitle())
+				.content(requestDto.getContent())
+				.price(requestDto.getPrice())
+				.seller(seller)
+				.imageUrl(imageUrl)
+				.build();
+
+		Product saved = productRepository.save(product);
+		return ProductResponseDto.from(saved);
+	}
 
 	/**
 	 * 상품 목록 조회. SOLD_OUT 상태는 기본 노출에서 제외한다.
