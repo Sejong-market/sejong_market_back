@@ -1,11 +1,13 @@
 package com.example.market.entity;
 
 import com.example.market.global.common.BaseCreatedEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -37,6 +40,12 @@ public class User extends BaseCreatedEntity implements UserDetails {
 
 	@Column(nullable = false, length = 45)
 	private String nickname;
+
+	@OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Product> products = new ArrayList<>();
+
+	@OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comment> comments = new ArrayList<>();
 
 	@Builder
 	public User(String email, String password, String nickname) {
