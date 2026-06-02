@@ -1,5 +1,6 @@
 package com.example.market.controller;
 
+import com.example.market.dto.product.ProductDetailResponseDto;
 import com.example.market.dto.product.ProductRequestDto;
 import com.example.market.dto.product.ProductResponseDto;
 import com.example.market.dto.product.ProductStatusRequestDto;
@@ -58,6 +59,23 @@ public class ProductController {
 	public ResponseEntity<Page<ProductResponseDto>> list(
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return ResponseEntity.ok(productService.findAll(pageable));
+	}
+
+	/**
+	 * 상품 상세 조회.
+	 *
+	 * 본문, 판매자 정보, 댓글 목록을 함께 반환한다.
+	 * 비로그인 사용자도 접근 가능하며, 이 경우 isMine 은 모두 false 로 내려간다.
+	 * (@AuthenticationPrincipal User user 는 비로그인 시 null 이 주입된다)
+	 *
+	 * 예시: GET /api/products/1
+	 */
+	@GetMapping("/{productId}")
+	public ResponseEntity<ProductDetailResponseDto> detail(
+			@AuthenticationPrincipal User user,
+			@PathVariable Integer productId) {
+
+		return ResponseEntity.ok(productService.getDetail(productId, user));
 	}
 
 	/**
