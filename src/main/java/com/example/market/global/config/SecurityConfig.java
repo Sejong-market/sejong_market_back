@@ -52,7 +52,7 @@ public class SecurityConfig {
                 // 로그인이 필요한 API (마이페이지, 댓글 작성 등)
                 .requestMatchers("/api/users/mypage/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/comments").authenticated()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
