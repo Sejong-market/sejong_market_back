@@ -96,4 +96,4 @@ spring:
 
 ---
 **© 2026 Sejong Market Project Team**  
-본 프로젝트는 오픈소스 라이선스에 따라 자유롭게 사용 및 수정이 가능합니다.
+This project is licensed under the [MIT License](LICENSE).
